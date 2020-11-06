@@ -2,28 +2,72 @@
 # Try to keep the code as neat as possible for easy understanding of changes and control flow
 
 import os
+import subprocess
 
 loginAWS = False
-profiles = []
+profile = ""
 
 # function to launch AWS instances
-def launchInstance():
-    print("Press ")
 
-    
+
+def launchInstance():
+    while True:
+        print("\nDefault values for each field taken if left blank => key-pair : MyKeyPair | security-group : my-sg | --description : My Security Group ")
+        keyPair = input("1. Enter name for new key-pair : ")
+        secGroup = input("2. Enter name for security group : ")
+        descSecurity = input(
+            "Enter description for security group {} : ".format(secGroup))
+        if keyPair == '':
+            keyPair = "MyKeyPair"
+        if secGroup == '':
+            secGroup = "my-sg"
+        if descSecurity == '':
+            descSecurity = "My Security Group"
+        print("Entered fields : \nkey-pair : {}\nsecurity-group : {}\ndescription : {}\n".format(
+            keyPair, secGroup, descSecurity))
+        confirm = input("Press Y to confirm : ")
+        if(confirm == 'Y' or confirm == 'y'):
+            # Creating Key-Pair
+            errorKeyPair = subprocess.call(
+                "aws ec2 create-key-pair --key-name {0} --profile {1}".format(keyPair, profile))
+            # Creating Security-Group
+            errorSecurityGroup = subprocess.call(
+                'aws ec2 create-security-group --group-name {} --description "{}" --profile {}'.format(secGroup, descSecurity, profile))
+            if errorKeyPair != 0 or errorSecurityGroup != 0:
+                recreate = input(
+                    "\nWould you like to delete created key-pair or security-group and try again ? (Press Y for Yes): ")
+                if recreate == 'Y' or recreate == 'y':
+                    if errorKeyPair != 0 and errorSecurityGroup == 0:
+                        subprocess.call(
+                            "aws ec2 delete-security-group --group-name {} --profile {}".format(secGroup, profile))
+                    elif errorSecurityGroup != 0 and errorKeyPair == 0:
+                        subprocess.call(
+                            "aws ec2 delete-key-pair --key-name {} --profile {}".format(keyPair, profile))
+                    continue
+                else:
+                    break
+            else:
+                print("rc : 0")
+                break
     return
-    
+
+
 def awsConfigure():
     global loginAWS
+    global profile
 
     print("\nAWS Configure\n-----------\n")
 
     name = input("Enter name of profile : ")
     print("Region name for Mumbai AZ : ap-south-1 | Leave default output format blank for JSON")
-    os.system("aws configure --profile {}".format(name))
-    profiles.append(name)
-    loginAWS = True
+    errorCheck = os.system("aws configure --profile {}".format(name))
+    print("rc : {}".format(errorCheck))
+
+    if errorCheck == 0:
+        loginAWS = True
+        profile = name
     return
+
 
 def awsMenu():
     print('\n')
@@ -33,7 +77,8 @@ def awsMenu():
         if not loginAWS:
             awsConfigure()
         else:
-            choice = input("\n1. Launch instance\t2. AWS Configure\t3. List Profiles\t4. Exit\n> ")
+            choice = input(
+                "\n1. Launch instance\t2. AWS Configure\t3. List Profiles\t4. Exit\n> ")
             if choice == '1':
                 launchInstance()
             elif choice == '2':
@@ -42,10 +87,9 @@ def awsMenu():
                 os.system("aws configure list-profiles")
             elif choice == '4':
                 break
-            else:                
+            else:
                 print("Invalid choice!!! Choose from 1-3\n")
     return
-
 
 
 # function to launch Hadoop cluster
