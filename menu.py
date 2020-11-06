@@ -11,6 +11,47 @@ profile = ""
 
 
 def launchInstance():
+
+    keyname, securityGroup, rc = keyAndSecurity()
+
+    if rc != 0:
+        return
+
+    exitflag = 0
+    imageID = "ami-0e306788ff2473ccb"
+    print("\n1. Amazon Linux 2 AMI 64-bit (x86)\t2. RHEL 8 64-bit (x86)\t3. Custom Image ID (Default : Amazon Linux 2 AMI)")
+    for i in range(5):
+        amiChoice = input("Enter choice (1-3) : ")
+        if amiChoice == '2':
+            imageID = "ami-052c08d70def0ac62"
+            break
+        elif amiChoice == '3':
+            imageID = input("Enter Image ID : ")
+            break
+        else:
+            if i == 4:
+                exitflag = 1
+                break
+            print("Invalid choice!!! Choose from 1-3\n")
+    if exitflag == 1:
+        print("Entered wrong option 5 times. Exiting...")
+        return
+
+    print("Create Instance with instanceID : {}, type : t2.micro, key-name : {}, security-group : {} ?".format(imageID, keyname, securityGroup))
+    create = input("Enter Y to confirm : ")
+    if create == 'Y':
+        errorInstance = subprocess.call(
+            "aws ec2 run-instances --image-id {} --count 1 --instance-type t2.micro --key-name {} --security-groups {} --profile {}".format(imageID, keyname, securityGroup, profile))
+        if errorInstance == 0:
+            instanceID = input("Enter the instance ID : ")
+            nametag = input("Enter name tag for instance (Eg. MyInstance): ")
+            subprocess.call(
+                "aws ec2 create-tags --resources {} --tags Key=Name,Value={}".format(instanceID, nametag))
+            print("Instance is created and running.\n")
+    return
+
+
+def keyAndSecurity():
     while True:
         print("\nDefault values for each field taken if left blank => key-pair : MyKeyPair | security-group : my-sg | --description : My Security Group ")
         keyPair = input("1. Enter name for new key-pair : ")
@@ -28,8 +69,8 @@ def launchInstance():
         confirm = input("Press Y to confirm : ")
         if(confirm == 'Y' or confirm == 'y'):
             # Creating Key-Pair
-            errorKeyPair = subprocess.call(
-                "aws ec2 create-key-pair --key-name {0} --profile {1}".format(keyPair, profile))
+            errorKeyPair = os.system(
+                "aws ec2 create-key-pair --key-name {0} --profile {1} --output text > {0}.pem".format(keyPair, profile))
             # Creating Security-Group
             errorSecurityGroup = subprocess.call(
                 'aws ec2 create-security-group --group-name {} --description "{}" --profile {}'.format(secGroup, descSecurity, profile))
@@ -38,18 +79,22 @@ def launchInstance():
                     "\nWould you like to delete created key-pair or security-group and try again ? (Press Y for Yes): ")
                 if recreate == 'Y' or recreate == 'y':
                     if errorKeyPair != 0 and errorSecurityGroup == 0:
+                        rc = 11
                         subprocess.call(
                             "aws ec2 delete-security-group --group-name {} --profile {}".format(secGroup, profile))
                     elif errorSecurityGroup != 0 and errorKeyPair == 0:
+                        rc = 12
                         subprocess.call(
                             "aws ec2 delete-key-pair --key-name {} --profile {}".format(keyPair, profile))
                     continue
                 else:
+                    rc = 1
                     break
             else:
-                print("rc : 0")
+                rc = 0
+                print("rc : {}".format(rc))
                 break
-    return
+    return (keyPair, secGroup, rc)
 
 
 def awsConfigure():
