@@ -1,6 +1,7 @@
 # ARTH TASK - Python scripting for all Technologies learnt
 # Try to keep the code as neat as possible for easy understanding of changes and control flow
 
+gaius-aws
 import os
 import subprocess
 
@@ -230,6 +231,11 @@ def awsMenu():
     return
 
 
+# function to launch AWS instances
+def lcaws():
+    return
+
+
 # function to launch Hadoop cluster
 def lchadoop():
     return
@@ -257,10 +263,10 @@ while True:
     # Based on added menu options, create functions too with additional elif statements.
     print("1. AWS CLI\t  2. Configure Hadoop\t3. Configure Docker\n4. Simulate ML Model\n")
     print("Press Q to quit.\n")
-    choice = input("> ")
+    choice = raw_input("Enter your choice : ")
 
     if choice == '1':
-        awsMenu()
+        lcaws()
     elif choice == '2':
         lchadoop()
     elif choice == '3':
