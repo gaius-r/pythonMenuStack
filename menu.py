@@ -1,6 +1,7 @@
 # ARTH TASK - Python scripting for all Technologies learnt
 # Try to keep the code as neat as possible for easy understanding of changes and control flow
 
+gaius-aws
 import os
 import subprocess
 
