@@ -15,7 +15,6 @@ def launchInstance():
     if rc != 0:
         return
 
-    exitflag = 0
     print("\n1. Amazon Linux 2 AMI 64-bit (x86)\t2. RHEL 8 64-bit (x86)\t   3. Custom Image ID\t  4. Exit Instance Creation")
     for i in range(5):
         amiChoice = input("Enter choice (1-4) : ")
@@ -33,12 +32,10 @@ def launchInstance():
             return
         else:
             if i == 4:
-                exitflag = 1
-                break
+                print("Entered wrong option 5 times. Exiting...")
+                return
             print("Invalid choice!!! Choose from 1-4\n")
-    if exitflag == 1:
-        print("Entered wrong option 5 times. Exiting...")
-        return
+        
 
     print("Create Instance with instanceID : {}, type : t2.micro, key-name : {}, security-group : {} ?".format(imageID, keyname, securityGroup))
     create = input("Enter Y to confirm : ")
