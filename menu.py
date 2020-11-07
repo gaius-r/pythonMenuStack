@@ -42,7 +42,7 @@ def launchInstance():
 
     print("Create Instance with instanceID : {}, type : t2.micro, key-name : {}, security-group : {} ?".format(imageID, keyname, securityGroup))
     create = input("Enter Y to confirm : ")
-    if create == 'Y':
+    if create == 'Y' or create == 'y':
         errorInstance = subprocess.call(
             "aws ec2 run-instances --image-id {} --count 1 --instance-type t2.micro --key-name {} --security-groups {} --profile {}".format(imageID, keyname, securityGroup, profile))
         if errorInstance == 0:
@@ -168,19 +168,27 @@ def awsConfigure():
 
 def awsMenu():
     print('\n')
-    os.system('aws --version')
-
+    error = os.system('aws --version')
+    print(error)
+    if error != 0:
+        print("No version of AWS CLI found. Would you like to install AWS CLIv2 ? (Press Y to confirm)")
+        install = input("> ")
+        if install == 'y' or install == 'Y':
+            subprocess.call("msiexec /i https://awscli.amazonaws.com/AWSCLIV2.msi")
+            return
+        else:
+            return
     while True:
         if not loginAWS:
             awsConfigure()
         else:
             print("\nAWS MENU\
                    \n--------")
-            print("\n1. Launch instance     \t2. Show Key-Pairs       \t3. Delete Key-Pair\
-                   \n4. Show Security-Groups\t5. Delete Security-Group\t6. Add Inbound Rules\
-                   \n7. Show Instances      \t8. Start Instance       \t9. Stop Instance\
-                   \n10.AWS Configure       \t11.List Profiles        \t\
-                   \n\nPress Q to exit")
+            print("\n1. Launch instance      \t2. Show Key-Pairs       \t3. Delete Key-Pair\
+                   \n4. Show Security-Groups \t5. Delete Security-Group\t6. Add Inbound Rules\
+                   \n7. Show Instances       \t8. Start Instance       \t9. Stop Instance\
+                   \n10.Terminate Instance   \t11.AWS Configure        \t12.List Profiles\
+                 \n\nPress Q to exit")
             choice = input("> ")
             if choice == '1':
                 launchInstance()
@@ -189,17 +197,19 @@ def awsMenu():
                     "aws ec2 describe-key-pairs --profile {}".format(profile))
             elif choice == '3':
                 keypair = input("\nEnter name of key-pair to delete : ")
-                os.system(
+                error = os.system(
                     "aws ec2 delete-key-pair --key-name {} --profile {}".format(keypair, profile))
-                print("Key-Pair : {} deleted.".format(keypair))
+                if error == 0:
+                    print("Key-Pair : {} deleted.".format(keypair))
             elif choice == '4':
                 os.system(
                     "aws ec2 describe-security-groups --profile {}".format(profile))
             elif choice == '5':
                 sg = input("\nEnter name of security-group to delete : ")
-                os.system(
+                error = os.system(
                     "aws ec2 delete-security-group --group-name {} --profile {}".format(sg, profile))
-                print("Security-Group : {} deleted.".format(sg))
+                if error == 0:
+                    print("Security-Group : {} deleted.".format(sg))
             elif choice == '6':
                 inboundRules()
             elif choice == '7':
@@ -208,25 +218,32 @@ def awsMenu():
                 instance_id = input("\nEnter instance-id : ")
                 error = subprocess.call("aws ec2 start-instances --instance-ids {} \
                     --profile {}".format(instance_id, profile))
-                if error == '0':
+                if error == 0:
                     print("Instance started successfully.")
                 print("rc : {}".format(error))
             elif choice == '9':
                 instance_id = input("\nEnter instance-id : ")
                 error = subprocess.call("aws ec2 stop-instances --instance-ids {} \
                     --profile {}".format(instance_id, profile))
-                if error == '0':
+                if error == 0:
                     print("Instance stopped successfully.")
                 print("rc : {}".format(error))
             elif choice == '10':
-                awsConfigure()
+                instance_id = input("\nEnter instance-id : ")
+                error = subprocess.call("aws ec2 terminate-instances --instance-ids {} \
+                    --profile {}".format(instance_id, profile))
+                if error == 0:
+                    print("Instance termination processed. Instance will be deleted in some time.")
+                print("rc : {}".format(error))
             elif choice == '11':
+                awsConfigure()
+            elif choice == '12':
                 os.system("aws configure list-profiles")
             elif choice == 'Q' or choice == 'q':
                 print("Exiting...\n")
                 break
             else:
-                print("Invalid choice!!! Choose from 1-11 or Q to exit.\n")
+                print("Invalid choice!!! Choose from 1-12 or Q to exit.\n")
     return
 
 
