@@ -1,3 +1,5 @@
+import os
+
 print("\t\t\tWhat do you want to do? \n")
 print("\t\t1 : Install docker")
 print("\t\t2 : Start docker service")
