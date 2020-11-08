@@ -3,6 +3,10 @@
 
 import os
 import ec2
+import docker
+import Lvmautomate
+import ml
+
 from subprocess import PIPE, run, check_output,call
 
 import ec2
@@ -144,24 +148,6 @@ def awsMenu():
     return
 
 
-# function to launch Hadoop cluster
-def lchadoop():
-    return
-
-
-# function to launch Docker containers
-def lcdocker():
-    return
-
-
-# function to simulate ML models
-def simml():
-    return
-
-
-# add more functions if required below -
-
-
 while True:
     print("\n\t\t\t\t-------------------\
            \n\t\t\t\t| TECH STACK MENU |\
@@ -169,18 +155,22 @@ while True:
 
     # Add menu options based on your requirement or idea. These are just temporary for now.
     # Based on added menu options, create functions too with additional elif statements.
-    print("1. AWS CLI\t  2. Configure Hadoop\t3. Configure Docker\n4. Simulate ML Model\n")
-    print("Press Q to quit.\n")
+    print("1. AWS CLI          \t2. Configure Hadoop    \t3. Configure Docker\
+         \n4. Simulate ML Model\t5. Create LVM Partition\
+         \nOptions 3 and 4 executable only in a UNIX Machine...")
+    print("\nPress Q to quit.\n")
     choice = input("> ")
 
     if choice == '1':
         awsMenu()
     elif choice == '2':
-        lchadoop()
+        continue
     elif choice == '3':
-        lcdocker()
+        docker.dockerMenu()
     elif choice == '4':
-        simml()
+        ml.mlModel()
+    elif choice == '5':
+        Lvmautomate.lvmAuto()
     elif choice == 'Q' or choice == 'q':
         break
     else:

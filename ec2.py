@@ -274,6 +274,4 @@ def ec2menu(prof):
         else:
             print("Invalid choice!!! Choose from 1-15 or Q to exit.\n")
     return
-
-
-
+    
