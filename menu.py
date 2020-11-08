@@ -38,7 +38,7 @@ def awsConfigure():
 
 def webserver():
 
-    key = input("Enter key name with .pem extension: ")
+    key = input("\nEnter key name with .pem extension: ")
     address = out("echo %USERPROFILE%").rstrip("\n")
     key = r"{}\KeyPairs\{}".format(address, key)
     instance = input("Enter instance-id : ")
@@ -67,9 +67,46 @@ def webserver():
             error4 = os.system("ssh -i {} ec2-user@{} sudo systemctl status httpd".format(key, publicDns))
         elif choice == 'q' or choice == 'Q':
             break
+        else:
+            print("Invalid choice!!! Choose from 1-4 or Press Q to exit.\n")
         print("rc : {}:{}:{}:{}".format(error1,error2,error3,error4))
     return
 
+
+def s3():
+    while True:
+        error1, error2 = 0,0
+        print("\n 1. Create S3 Bucket\
+               \n 2. Upload to S3 Bucket\
+             \n\n Press Q to quit")
+        choice = input("> ")
+        if choice == '1':
+            bucket = input("Enter bucket name : ")
+            error1 = os.system("aws s3api create-bucket --bucket {} --region ap-south-1 \
+                --create-bucket-configuration LocationConstraint=ap-south-1 --no-verify-ssl".format(bucket))
+            if error1 == 0:
+                print("Bucket '{}' created successfully.".format(bucket))
+        elif choice == '2':
+            file = input("Enter absolute path of file you wish to upload : ")
+            bucket = input("Enter bucket name : ")
+            error2 = os.system("aws s3 cp {} s3://{}/ --acl public-read-write".format(file, bucket))
+            if error2 == 0:
+                print("File '{}' added to Bucket '{}' successfully.".format(file, bucket))
+        elif choice == 'q' or choice == 'Q':
+            break
+        else:
+            print("Invalid choice!!! Choose 1 or 2 or Press Q to exit.\n")
+    return
+
+
+def cloudfront():
+    bucket = input("\nEnter bucket name : ")
+    print("Setting up CloudFront ...")
+    error = os.system(
+        "aws cloudfront create-distribution --origin-domain-name {}.s3.amazon.com".format(bucket))
+    if error == 0:
+        print("CloudFront distribution created successfully.")
+    return
 
 def awsMenu():
     print('\n')
@@ -97,11 +134,13 @@ def awsMenu():
             elif choice == '2':
                 webserver()
             elif choice == '3':
-                break
+                s3()
             elif choice == '4':
-                break
+                cloudfront()
             elif choice == 'Q' or choice =='q':
                 return
+            else:
+                print("Invalid choice!!! Choose from 1-4 or Press Q to exit.\n")
     return
 
 
