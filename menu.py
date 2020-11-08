@@ -6,6 +6,7 @@ import ec2
 import docker
 import Lvmautomate
 import ml
+import hadoop
 
 from subprocess import PIPE, run, check_output,call
 
@@ -164,7 +165,7 @@ while True:
     if choice == '1':
         awsMenu()
     elif choice == '2':
-        continue
+        hadoop.hadoopMenu()
     elif choice == '3':
         docker.dockerMenu()
     elif choice == '4':
