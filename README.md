@@ -9,3 +9,4 @@ A python program displaying a menu integrating operations in concepts like AWS, 
 - The mlModel() function in ml.py is called in menu.py to access ML Linear Model functionalities.
 - The lvmAuto() function in Lvmautomate.py is called in menu.py to access LVM functionalities.
 - The dockerMenu() function in docker.py is called in menu.py to access Docker functionalities.
+- The hadoopMenu() function in hadoop.py is called in menu.py to access Hadoop functionalities.
