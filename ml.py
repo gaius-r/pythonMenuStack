@@ -3,7 +3,8 @@ from sklearn.linear_model import LinearRegression
 
 
 def mlModel():
-    dataset = pandas.read_csv('Salary_Data.csv')
+    dataset = pandas.read_csv(r"pythonMenuStack\Salary_Data.csv")
+    print(dataset.head())
     y = dataset['Salary']
     x = dataset['YearsExperience']
     x = x.values
